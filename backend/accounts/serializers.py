@@ -113,5 +113,6 @@ class BranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = BRANCH
         fields = ['BRANCH_ID','PROGRAM','NAME',
-        'CODE',
+        'CODE','DESCRIPTION','IS_ACTIVE','CREATED_BY',
+        'UPDATED_BY'
         ]

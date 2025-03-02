@@ -152,10 +152,10 @@ const NameEntryForm = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         
         {/* Navigation Bar */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        {/* <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Program Entry Form</h2>
         
-        </div>
+        </div> */}
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row g-3">

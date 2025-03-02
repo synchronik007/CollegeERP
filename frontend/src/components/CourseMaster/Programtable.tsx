@@ -10,8 +10,8 @@ import BranchEntryForm from "./pages/BranchEntryForm";
 // import SemesterEntryForm from "./pages/SemesterEntryForm";
 // import YearEntryForm from "./pages/YearEntryForm";
 
-import ProgramList from "./ProgramList";
 import ProgramTableView from "./ProgramTableView";
+import BranchTableView from "./BranchTableView";
 // import CourseList from "./CourseList";
 // import BranchList from "./BranchList";
 // import SemesterList from "./SemesterList";
@@ -84,7 +84,7 @@ const NameEntryForm = () => {
               {selectedForm === "program" && <ProgramTableView />}
               {/* Uncomment when needed */}
               {/* {selectedForm === "course" && <CourseList />} */}
-              {/* {selectedForm === "branch" && <BranchList />} */}
+              {selectedForm === "branch" && <BranchTableView />}
               {/* {selectedForm === "semester" && <SemesterList />} */}
               {/* {selectedForm === "year" && <YearList />} */}
             </div>

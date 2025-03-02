@@ -5,10 +5,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
-import logging  # Add this import
-
-logger = logging.getLogger(__name__)  # Add this line
-
 from .models import (
     CustomUser, COUNTRY, STATE, CITY, 
     CURRENCY, LANGUAGE, DESIGNATION, CATEGORY,
@@ -322,7 +318,6 @@ class RequestPasswordResetView(APIView):
                 user.save()
                 return Response({
                     'status': 'error',
-
                     'message': 'Failed to send OTP email'
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 
@@ -414,67 +409,28 @@ class MasterTableListView(APIView):
 class BaseModelViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
-    def get_username_from_request(self):
-        """Get username from multiple possible sources"""
-        try:
-            # Try Authorization header first
-            auth_header = self.request.headers.get('Authorization', '')
-            if (auth_header and auth_header.startswith('Username ')):
-                username = auth_header.split(' ')[1]
-                logger.debug(f"Username from Auth header: {username}")
-                return username
-
-            # Try X-Username header next
-            username = self.request.headers.get('X-Username')
-            if username:
-                logger.debug(f"Username from X-Username header: {username}")
-                return username
-
-            # Try getting from user object
-            if hasattr(self.request.user, 'USERNAME') and self.request.user.USERNAME:
-                logger.debug(f"Username from user object: {self.request.user.USERNAME}")
-                return self.request.user.USERNAME
-
-            # Fallback
-            logger.warning("No username found, using SYSTEM")
-            return 'SYSTEM'
-        except Exception as e:
-            logger.error(f"Error getting username: {str(e)}")
-            return 'SYSTEM'
-
     def perform_create(self, serializer):
-        username = self.get_username_from_request()
-        logger.debug(f"Create by user: {username}")
-        serializer.save(
-            CREATED_BY=username,
-            UPDATED_BY=username
-        )
+        print(f"=== Debug Create by {self.request.user.USERNAME} ===")
+        # Pass values directly to serializer save
+        instance = serializer.save()
+        instance.CREATED_BY = str(self.request.user.USERNAME)
+        instance.UPDATED_BY = str(self.request.user.USERNAME)
+        instance.save()
 
     def perform_update(self, serializer):
-        username = self.get_username_from_request()
-        logger.debug(f"Update by user: {username}")
-        serializer.save(UPDATED_BY=username)
-
-    def perform_destroy(self, instance):
-        username = self.get_username_from_request()
-        logger.debug(f"Performing soft delete by user: {username}")
-        
-        instance.IS_DELETED = True
-        instance.DELETED_AT = timezone.now()
-        instance.DELETED_BY = username
+        print(f"=== Debug Update by {self.request.user.USERNAME} ===")
+        # Update existing instance
+        instance = serializer.save()
+        instance.UPDATED_BY = str(self.request.user.USERNAME)
         instance.save()
-        
-        logger.info(f"Record {instance.pk} soft deleted by {username}")
 
+# Update all ViewSets to inherit from BaseModelViewSet
 class CountryViewSet(BaseModelViewSet):
     queryset = COUNTRY.objects.all()
     serializer_class = CountrySerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        countries = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        countries = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(countries, many=True)
         return Response(serializer.data)
 
@@ -482,11 +438,8 @@ class StateViewSet(BaseModelViewSet):
     queryset = STATE.objects.all()
     serializer_class = StateSerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        states = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        states = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(states, many=True)
         return Response(serializer.data)
 
@@ -494,13 +447,8 @@ class CityViewSet(BaseModelViewSet):
     queryset = CITY.objects.all()
     serializer_class = CitySerializer
 
-    def get_queryset(self):
-        # Only return non-deleted records
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        # Only list active and non-deleted records
-        cities = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        cities = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(cities, many=True)
         return Response(serializer.data)
 
@@ -508,11 +456,8 @@ class CurrencyViewSet(BaseModelViewSet):
     queryset = CURRENCY.objects.all()
     serializer_class = CurrencySerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        currencies = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        currencies = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(currencies, many=True)
         return Response(serializer.data)
 
@@ -520,11 +465,8 @@ class LanguageViewSet(BaseModelViewSet):
     queryset = LANGUAGE.objects.all()
     serializer_class = LanguageSerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        languages = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        languages = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(languages, many=True)
         return Response(serializer.data)
 
@@ -532,20 +474,14 @@ class DesignationViewSet(BaseModelViewSet):
     queryset = DESIGNATION.objects.all()
     serializer_class = DesignationSerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        designations = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        designations = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(designations, many=True)
         return Response(serializer.data)
 
 class CategoryViewSet(BaseModelViewSet):
     queryset = CATEGORY.objects.all()
     serializer_class = CategorySerializer
-
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
 
     def create(self, request, *args, **kwargs):
         try:
@@ -604,7 +540,7 @@ class CategoryViewSet(BaseModelViewSet):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def list(self, request, *args, **kwargs):
-        categories = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        categories = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(categories, many=True)
         return Response(serializer.data)
 
@@ -635,11 +571,8 @@ class DepartmentViewSet(BaseModelViewSet):
     queryset = DEPARTMENT.objects.all()
     serializer_class = DepartmentSerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(IS_DELETED=False)
-
     def list(self, request, *args, **kwargs):
-        departments = self.queryset.filter(IS_ACTIVE=True, IS_DELETED=False)
+        departments = self.queryset.filter(IS_ACTIVE=True)
         serializer = self.get_serializer(departments, many=True)
         return Response(serializer.data)
     
@@ -662,6 +595,40 @@ class ProgramListCreateView(BaseModelViewSet):
             {"error": serializer.errors}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+    def list(self, request, *args, **kwargs):
+        institute_id = request.GET.get("institute_id")  # Get institute_id from query params
+        programs = self.queryset.filter(IS_ACTIVE=True)  # Base queryset (filtered by IS_ACTIVE=True)
+
+        if institute_id:
+            institute_id = int(institute_id)
+            programs = programs.filter(INSTITUTE=institute_id)
+
+        serializer = self.get_serializer(programs, many=True)
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Program updated successfully!", "data": serializer.data},
+                status=status.HTTP_200_OK,
+            )
+
+        print("Update Errors:", serializer.errors)
+        return Response(
+            {"error": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(
+            {"message": "Program deleted successfully!"},
+            status=status.HTTP_204_NO_CONTENT,
+        )        
         
 from django.http import JsonResponse
 from django.views import View
@@ -685,6 +652,23 @@ class ProgramTableListView(View):
 class BranchListCreateView(BaseModelViewSet):
     queryset = BRANCH.objects.all()
     serializer_class = BranchSerializer
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Branch created successfully!", "data": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
+
+        print("Serializer Errors:", serializer.errors)  # Debugging
+        return Response(
+            {"error": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
     
 
 
