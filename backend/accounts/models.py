@@ -651,7 +651,7 @@ class DEPARTMENT(AuditModel):
         return f"{self.CODE} - {self.NAME}"
 
 class BRANCH(AuditModel):
-    BRANCH_ID = models.AutoField(primary_key=True, db_column='BRANCH_ID')
+    BRANCH_ID = models.AutoField(primary_key=True, db_column='BRANCH_ID' )
     PROGRAM = models.ForeignKey(
         PROGRAM,
         on_delete=models.PROTECT,

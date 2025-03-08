@@ -2,14 +2,19 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axios";
 import { Button, Table, Badge, ButtonGroup } from "react-bootstrap";
 import { Paper } from "@mui/material";
-import EditModal from "../../components/CourseMaster/Editmodal"; // ✅ Import the modal
+import EditModal from "../../components/CourseMaster/Editmodal";
+
+interface Program {
+  PROGRAM_ID: number;
+  NAME: string;
+}
 
 interface Branch {
   BRANCH_ID: number;
-  CODE: string;
+  CODE: Program;
   NAME: string;
-  PROGRAM_CODE: string;  // Updated field
-  INSTITUTE_CODE: string; // Updated field
+  PROGRAM_CODE: string;
+  INSTITUTE_CODE: string;
   IS_ACTIVE: boolean;
 }
 
@@ -74,7 +79,6 @@ const BranchTableView: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Remove deleted branch from the state without re-fetching
       setBranches((prevBranches) => prevBranches.filter(branch => branch.BRANCH_ID !== branchId));
 
       alert("Branch deleted successfully!");
@@ -90,7 +94,7 @@ const BranchTableView: React.FC = () => {
           <tr>
             <th>Branch Code</th>
             <th>Branch Name</th>
-            <th>Program Code</th>  {/* Updated label */}
+            <th>Program Code</th>
             <th>Institute Code</th>
             <th>Status</th>
             <th>Actions</th>
@@ -98,14 +102,14 @@ const BranchTableView: React.FC = () => {
         </thead>
         <tbody>
           {branches.map((branch) => (
-            <tr key={branch.CODE}>
-              <td>{branch.CODE}</td>
+            <tr key={branch.BRANCH_ID}>
+              <td>{branch.CODE?.NAME || "-"}</td>
               <td>{branch.NAME}</td>
-              <td>{branch.PROGRAM_CODE || '-'}</td> {/* Updated field */}
-              <td>{branch.INSTITUTE_CODE || '-'}</td> {/* Updated field */}
+              <td>{branch.PROGRAM_CODE || "-"}</td>
+              <td>{branch.INSTITUTE_CODE || "-"}</td>
               <td>
-                <Badge bg={branch.IS_ACTIVE ? 'success' : 'danger'}>
-                  {branch.IS_ACTIVE ? 'Active' : 'Inactive'}
+                <Badge bg={branch.IS_ACTIVE ? "success" : "danger"}>
+                  {branch.IS_ACTIVE ? "Active" : "Inactive"}
                 </Badge>
               </td>
               <td>

@@ -127,16 +127,31 @@ class BranchSerializer(serializers.ModelSerializer):
             'DESCRIPTION', 'IS_ACTIVE', 'CREATED_BY',
             'UPDATED_BY', 'PROGRAM_CODE', 'INSTITUTE_CODE'
         ]
+        
 
 class YearSerializer(serializers.ModelSerializer):
+    BRANCH_CODE = serializers.CharField(source='BRANCH.CODE', read_only=True)
+    BRANCH_NAME = serializers.CharField(source='BRANCH.NAME', read_only=True)
+    
     class Meta:
         model = YEAR
-        fields =  ['YEAR_ID','YEAR','BRANCH']
+        fields =  ['YEAR_ID','YEAR','BRANCH','BRANCH_CODE','BRANCH_NAME']
+    
+    def validate_BRANCH_ID(self, value):
+        if not value:
+            raise serializers.ValidationError("Branch ID is required.")
+        return value
         
 class SemesterSerializer(serializers.ModelSerializer):
+    BRANCH_NAME = serializers.CharField(source='YEAR.BRANCH.NAME', read_only=True)
+    YEAR_YEAR = serializers.CharField(source='YEAR.YEAR', read_only=True)
+  
+    
+   
     class Meta:
         model = SEMESTER
-        fields = ['SEMESTER_ID','SEMESTER','YEAR'
+        fields = ['SEMESTER_ID','SEMESTER','YEAR','YEAR_YEAR',
+        'BRANCH_NAME'    
         ]
 
 class SemesterDurationSerializer(serializers.ModelSerializer):

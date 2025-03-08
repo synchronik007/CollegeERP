@@ -89,8 +89,7 @@ const EditModal = <T extends Record<string, any>>({ show, onHide, onSave, data, 
     }
   };
 
-  const excludedFields = ["PROGRAM_ID", "CREATED_BY", "INSTITUTE", "DESCRIPTION", "UPDATED_BY", "IS_ACTIVE","SEMESTER_ID","PROGRAM","YEAR_ID"];
- 
+  const excludedFields = ["PROGRAM_ID", "CREATED_BY", "INSTITUTE", "DESCRIPTION", "UPDATED_BY", "IS_ACTIVE","SEMESTER_ID","PROGRAM","BRANCH_ID","BRANCH","YEAR_ID"];
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -99,33 +98,23 @@ const EditModal = <T extends Record<string, any>>({ show, onHide, onSave, data, 
       </Modal.Header>
       <Modal.Body>
         <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Code</Form.Label>
-            <Form.Control
-              type="text"
-              name="CODE"
-              value={formData.CODE || ''}
-              onChange={handleChange}
-              isInvalid={!!errors.code}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.code}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="NAME"
-              value={formData.NAME || ''}
-              onChange={handleChange}
-              isInvalid={!!errors.name}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.name}
-            </Form.Control.Feedback>
-          </Form.Group>
+          {Object.keys(formData)
+            .filter((key) => !excludedFields.includes(key)) // Remove unwanted fields
+            .map((key) => (
+              <Form.Group key={key} className="mb-3">
+                <Form.Label>{key.replace("_", " ")}</Form.Label>
+                <Form.Control
+                  type="text"
+                  name={key}
+                  value={(formData[key] as string) || ""}
+                  onChange={handleChange}
+                  isInvalid={!!errors[key]}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors[key]}
+                </Form.Control.Feedback>
+              </Form.Group>
+            ))}
 
           {title.toLowerCase() === 'branch' && (
             <>

@@ -190,9 +190,18 @@ const NameEntryForm = () => {
             </div>
 
             <div className="col-md-6">
-              <label className="form-label">Duration (Years)</label>
-              <input type="number" {...register("DURATION_YEARS", { required: true })} className="form-control" />
-            </div>
+  <label className="form-label">Duration (Years)</label>
+  <select {...register("DURATION_YEARS", { required: true })} className="form-control">
+    <option value="">Select Duration</option>
+    <option value="1">1 </option>
+    <option value="2">2 </option>
+    <option value="3">3</option>
+    <option value="4">4 </option>
+    <option value="5">5 </option>
+    <option value="6">6 </option>
+  </select>
+</div>
+
             <div className="col-md-6">
               <label className="form-label">Level</label>
               <select {...register("LEVEL", { required: true })} className="form-control">

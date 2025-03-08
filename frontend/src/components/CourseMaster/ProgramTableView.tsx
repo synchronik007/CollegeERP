@@ -141,7 +141,7 @@ const ProgramTableView = () => {
               />
             </th>
             <th>Name</th>
-            <th>Code</th>
+            <th>Program Code</th>
             <th>Level</th>
             <th>Type</th>
             <th>Actions</th>

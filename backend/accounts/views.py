@@ -713,7 +713,7 @@ class ProgramTableListView(View):
 
 
 class BranchListCreateView(BaseModelViewSet):
-    queryset = BRANCH.objects.all()
+    queryset = BRANCH.objects.all().select_related("PROGRAM") 
     serializer_class = BranchSerializer
 
     def post(self, request):
@@ -768,6 +768,22 @@ class BranchListCreateView(BaseModelViewSet):
 
         serializer = self.get_serializer(branches, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # def list(self, request, *args, **kwargs):
+    #     branch_id = request.GET.get("branch_id")  # Get branch_id from query params
+    #     years = self.queryset  # Get base queryset of active years
+
+    #     if branch_id:
+    #         try:
+    #             branch_id = int(branch_id)
+    #             years = years.filter(BRANCH=branch_id)  # Filter years by branch
+    #         except ValueError:
+    #             return Response({"error": "Invalid Branch ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     serializer = self.get_serializer(years, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -798,8 +814,22 @@ class LogoutView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 class YearListCreateView(BaseModelViewSet):
-    queryset = YEAR.objects.all()
+    queryset = YEAR.objects.all().select_related("BRANCH")  # ✅ Optimize DB query
     serializer_class = YearSerializer
+    
+    
+    
+    def perform_create(self, serializer):
+        branch = serializer.validated_data.get('BRANCH')
+        if branch is None:
+            raise serializer.ValidationError({"BRANCH": "This field is required."})
+        serializer.save()
+
+    def perform_update(self, serializer):
+        branch = serializer.validated_data.get('BRANCH')
+        if branch is None:
+            raise serializer.ValidationError({"BRANCH": "This field is required."})
+        serializer.save()
 
     def get_queryset(self):
         queryset = super().get_queryset()  # ✅ Correct indentation
@@ -826,7 +856,7 @@ class SemesterListCreateView(viewsets.ModelViewSet):
     """
     API endpoint for listing and creating Semester records.
     """
-    queryset = SEMESTER.objects.all().order_by("YEAR", "SEMESTER")  # Sorting by year and semester
+    queryset = SEMESTER.objects.all().select_related("YEAR")    # Sorting by year and semester
     serializer_class = SemesterSerializer
    
    
