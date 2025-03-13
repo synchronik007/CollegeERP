@@ -17,9 +17,8 @@ import ProgramTable from "../CourseMaster/Programtable";
 import ProgramList from "../CourseMaster/ProgramList";
 import DashboardMaster from "../DashboardMaster/DashboardMaster";
 import SemesterDurationTableView from "../master/SemesterDurationTableView";
-import EmployeeDetail from "../employeeDetails/employeedetail";
-import AcademicQualification from "../employeeDetails/academicQualification";
 import AdmissionTable from "../Admission/AdmissionTable";
+
 
 const DashboardHome = () => (
   <div className="container-fluid p-4">
@@ -88,15 +87,7 @@ const SuperAdminDashboard = ({ user }: any) => {
               element={<CreateEmployee />}
             />
             <Route path="/courseMaster" element={<ProgramTable />} />
-            <Route 
-              path="/establishment/employeedetails" 
-              element={<EmployeeDetail />} 
-            />
-            <Route 
-              path="/establishment/academic-qualification" 
-              element={<AcademicQualification />} 
-            />
-          <Route path="/student-section" element={<AdmissionTable />} />
+            <Route path="/admissionMaster" element={<AdmissionTable />} />
           </Routes>
         </div>
       </div>

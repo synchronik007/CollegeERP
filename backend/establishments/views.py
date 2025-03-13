@@ -328,25 +328,3 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             return Response({
                 'error': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['get'])
-    def by_department(self, request, department_id=None):
-        try:
-            # Add debug logging
-            print(f"Fetching employees for department_id: {department_id}")
-            
-            employees = EMPLOYEE_MASTER.objects.filter(
-                DEPARTMENT_id=department_id,
-            ).values('EMPLOYEE_ID')
-            
-            # Add debug logging
-            print(f"Found {len(employees)} employees")
-            print("Employee IDs:", [emp['EMPLOYEE_ID'] for emp in employees])
-            
-            return Response(employees)
-        except Exception as e:
-            print(f"Error in by_department: {str(e)}")
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )

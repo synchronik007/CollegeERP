@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { lightTheme, darkTheme } from "../utils/theme";
-import { loadFromLocalStorage, saveToLocalStorage } from '../utils/storageUtils';
 
 interface SettingsContextType {
   darkMode: boolean;
@@ -22,23 +21,18 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [darkMode, setDarkMode] = useState(() => 
-    loadFromLocalStorage('darkMode', false)
+  const [darkMode, setDarkMode] = useState(false);
+  const [compactMode, setCompactMode] = useState(false);
+  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">(
+    "medium"
   );
-  
-  const [fontSize, setFontSize] = useState(() => 
-    loadFromLocalStorage('fontSize', 'medium')
-  );
-  
-  const [compactMode, setCompactMode] = useState(() => 
-    loadFromLocalStorage('compactMode', false)
-  );
-  
-  const [animations, setAnimations] = useState(() => 
-    loadFromLocalStorage('animations', true)
-  );
+  const [animations, setAnimations] = useState(true);
 
   useEffect(() => {
+    localStorage.setItem(
+      "userSettings",
+      JSON.stringify({ darkMode, compactMode, fontSize, animations })
+    );
     document.documentElement.setAttribute(
       "data-theme",
       darkMode ? "dark" : "light"
@@ -50,37 +44,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       large: "18px",
     } as const;
 
-    document.documentElement.style.fontSize = fontSizes[fontSize as keyof typeof fontSizes];
+    document.documentElement.style.fontSize = fontSizes[fontSize];
   }, [darkMode, compactMode, fontSize, animations]);
 
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode((prev: boolean): boolean => {
-      const newValue: boolean = !prev;
-      saveToLocalStorage('darkMode', newValue);
-      return newValue;
-    });
-  }, []);
-
-  const toggleCompactMode = useCallback(() => {
-    setCompactMode((prev: boolean) => {
-      const newValue: boolean = !prev;
-      saveToLocalStorage('compactMode', newValue);
-      return newValue;
-    });
-  }, []);
-
-  const handleSetFontSize = useCallback((size: 'small' | 'medium' | 'large') => {
-    setFontSize(size);
-    saveToLocalStorage('fontSize', size);
-  }, []);
-
-  const toggleAnimations = useCallback(() => {
-    setAnimations((prev: boolean): boolean => {
-      const newValue: boolean = !prev;
-      saveToLocalStorage('animations', newValue);
-      return newValue;
-    });
-  }, []);
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleCompactMode = () => setCompactMode((prev) => !prev);
+  const toggleAnimations = () => setAnimations((prev) => !prev);
 
   return (
     <SettingsContext.Provider
@@ -91,7 +60,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         animations,
         toggleDarkMode,
         toggleCompactMode,
-        setFontSize: handleSetFontSize,
+        setFontSize,
         toggleAnimations,
       }}
     >
