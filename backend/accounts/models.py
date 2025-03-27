@@ -896,7 +896,7 @@ class CASTE_MASTER(AuditModel):
         return f"{self.NAME} - {self.CASTE_ID}"
 
 class QUOTA_MASTER(AuditModel):
-    QUOTA_ID = models.AutoField(primary_key=True, db_column='QUOTA_ID')  
+    QUOTA_ID = models.AutoField(primary_key=True, db_column='CASTE_ID')  
     NAME = models.CharField(max_length=50, db_column='NAME', null=True)  
 
     class Meta:
@@ -908,7 +908,7 @@ class QUOTA_MASTER(AuditModel):
         return f"{self.NAME} - {self.QUOTA_ID}"
 
 class ADMISSION_QUOTA_MASTER(AuditModel):
-    ADMN_QUOTA_ID = models.AutoField(primary_key=True, db_column='ADMN_QUOTA_ID')  
+    ADMN_QUOTA_ID = models.AutoField(primary_key=True, db_column='CASTE_ID')  
     NAME = models.CharField(max_length=50, db_column='NAME', null=True)  
 
     class Meta:

@@ -196,17 +196,17 @@ const DashboardMaster: React.FC = () => {
     const { value } = e.target;
     setFormData((prev) => ({ ...prev, department: value }));
   
-    if (value) {
+    if (formData.courseName && formData.instituteId && value) {
       try {
         const response = await axiosInstance.get(
-          `/api/establishment/employees/by-department/${value}/`
+          `/api/establishment/employees/=${formData.department}&department=${value}&institute_id=${formData.instituteId}`
         );
+        console.log('API Response:', response.data); // Debug the data
         if (response.status === 200) {
-          setEmployees(response.data);
+          setEmployees(response.data); // Ensure employees are correctly set
         }
       } catch (error) {
         console.error('Error fetching employees:', error);
-        setEmployees([]);
       }
     }
   };
@@ -358,27 +358,23 @@ const DashboardMaster: React.FC = () => {
         </div>
 
         <div className="mb-3">
-  <label>Employee IDs</label>
+  <label>Employees</label>
   {employees.length > 0 ? (
-    <div className="row">
-      {employees.map((employee) => (
-        <div key={employee.EMPLOYEE_ID} className="col-md-3 mb-2">
-          <div className="form-check">
-            <input
-              type="checkbox"
-              id={`employee-${employee.EMPLOYEE_ID}`}
-              value={employee.EMPLOYEE_ID}
-              checked={formData.selectedEmployees.includes(employee.EMPLOYEE_ID)}
-              onChange={handleCheckboxChange}
-              className="form-check-input"
-            />
-            <label htmlFor={`employee-${employee.EMPLOYEE_ID}`} className="form-check-label">
-              {employee.EMPLOYEE_ID}
-            </label>
-          </div>
-        </div>
-      ))}
-    </div>
+    employees.map((employee) => (
+      <div key={employee.EMPLOYEE_ID} className="form-check">
+        <input
+          type="checkbox"
+          id={`employee-${employee.EMPLOYEE_ID}`}
+          value={employee.EMPLOYEE_ID}
+          checked={formData.selectedEmployees.includes(employee.EMPLOYEE_ID)}
+          onChange={handleCheckboxChange}
+          className="form-check-input"
+        />
+        <label htmlFor={`employee-${employee.EMPLOYEE_ID}`} className="form-check-label">
+          {employee.NAME} (ID: {employee.EMPLOYEE_ID})
+        </label>
+      </div>
+    ))
   ) : (
     <p>No employees found for the selected department.</p>
   )}

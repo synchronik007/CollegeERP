@@ -9,7 +9,7 @@ from .models import (
     CustomUser, COUNTRY, STATE, CITY, 
     CURRENCY, LANGUAGE, DESIGNATION, CATEGORY,
     UNIVERSITY, INSTITUTE, DEPARTMENT, PROGRAM, BRANCH, DASHBOARD_MASTER,
-    YEAR, SEMESTER, SEMESTER_DURATION, CASTE_MASTER, QUOTA_MASTER, ADMISSION_QUOTA_MASTER
+    YEAR, SEMESTER, SEMESTER_DURATION,CASTE_MASTER,QUOTA_MASTER,ADMISSION_QUOTA_MASTER
 )
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
@@ -19,8 +19,7 @@ from .serializers import (
     CurrencySerializer, LanguageSerializer, DesignationSerializer,
     CategorySerializer, UniversitySerializer, InstituteSerializer, 
     DepartmentSerializer, ProgramSerializer, BranchSerializer, 
-    DashboardMasterSerializer, YearSerializer, SemesterSerializer, SemesterDurationSerializer, 
-    CasteSerializer, QuotaSerializer, AdmissionQuotaSerializer
+    DashboardMasterSerializer, YearSerializer, SemesterSerializer, SemesterDurationSerializer,CasteSerializer,QuotaSerializer,AdmissionQuotaSerializer
 )
 
 from rest_framework import viewsets
@@ -1041,3 +1040,8 @@ class AdmissionListCreateView(BaseModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+      
+      
+      
+
+    

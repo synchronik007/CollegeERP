@@ -16,7 +16,6 @@ router.register('employees', EmployeeViewSet, basename='employees')  # Add this 
 
 urlpatterns = [
     path('masters/', EmployeeMasterTableView.as_view(), name='employee-master-tables'),
-    path('employees/by-department/<int:department_id>/', EmployeeViewSet.as_view({'get': 'by_department'}), name='employees-by-department'),
 ]
 
 # Add router URLs to urlpatterns

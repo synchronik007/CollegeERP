@@ -465,8 +465,6 @@ const CreateEmployee = () => {
       const response = await employeeService.getEmployee(employeeId);
       const employeeData = response.data;
 
-      console.log('Raw Employee Data:', employeeData); // Debug log
-
       // Map API response fields to form data fields
       const mappedFormData = {
         institute: employeeData.INSTITUTE,
@@ -480,12 +478,12 @@ const CreateEmployee = () => {
           ? new Date(employeeData.DATE_OF_BIRTH)
           : null,
         designation: employeeData.DESIGNATION,
-        permanentAddress: employeeData.PERMANENT_ADDRESS || '',
+        permanentAddress: employeeData.PERMANENT_ADDRESS || "",
         email: employeeData.EMAIL,
         localAddress: employeeData.LOCAL_ADDRESS || "",
         panNo: employeeData.PAN_NO || "",
-        permanentCity: employeeData.PERMANENT_CITY || '',
-        permanentPinNo: employeeData.PERMANENT_PIN || '',
+        permanentCity: employeeData.PERMANENT_CITY || "",
+        permanentPinNo: employeeData.PERMANENT_PIN || "",
         drivingLicNo: employeeData.DRIVING_LICENSE_NO || "",
         sex: employeeData.SEX || "",
         status: employeeData.STATUS || "",
@@ -507,7 +505,6 @@ const CreateEmployee = () => {
         profileImage: null, // Reset profile image since we'll load it separately
       };
 
-      console.log('Mapped Form Data:', mappedFormData); // Debug log
       setFormData(mappedFormData);
 
       // Handle profile image if exists
@@ -852,7 +849,6 @@ const CreateEmployee = () => {
                 rows={1}
                 label="Permanent Address"
                 name="permanentAddress"
-                value={formData.permanentAddress}  // Add value binding
                 onChange={handleAddressChange}
                 placeholder="e.g. 123, Main Street, Apartment 4B"
               />
@@ -862,7 +858,6 @@ const CreateEmployee = () => {
                   fullWidth
                   label="City"
                   name="permanentCity"
-                  value={formData.permanentCity}  // Add value binding
                   onChange={handleAddressChange}
                   placeholder="e.g. Mumbai"
                 />
@@ -871,7 +866,6 @@ const CreateEmployee = () => {
                   fullWidth
                   label="PIN"
                   name="permanentPinNo"
-                  value={formData.permanentPinNo}  // Add value binding
                   onChange={handleAddressChange}
                   placeholder="e.g. 400001"
                 />

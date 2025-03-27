@@ -64,7 +64,7 @@ npm start
 
 ## 📖 Documentation
 
-For a detailed overview of features and API documentation, please visit our **[Wiki](https://github.com/synchronik007/CollegeERP/wiki)**.
+For a detailed overview of features and API documentation, please visit our **[Wiki](https://github.com/YourRepo/College-ERP/wiki)**.
 
 ---
 

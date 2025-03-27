@@ -1,30 +1,21 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { motion } from "framer-motion";
 import axiosInstance from "../../../api/axios";
 import { Paper, Button } from "@mui/material";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-interface CasteFormData {
-  casteName: string;
-}
-
 const CasteEntryForm = () => {
-  const { register, handleSubmit, reset } = useForm<CasteFormData>();
+  const { register, handleSubmit, reset } = useForm();
+  const [casteName, setCasteName] = useState("");
 
-  const onSubmit = async (data: CasteFormData) => {
-    console.log("Submitting data:", data); // Debugging
-
+  const onSubmit = async (data: any) => {
     try {
-      const payload = { NAME: data.casteName }; // Ensure correct field name
-      const response = await axiosInstance.post("api/master/caste/", payload);
-
-      console.log("API Response:", response.data);
-      window.alert("Caste added successfully!"); // Browser alert for success
+      await axiosInstance.post("/master/caste/", data);
+      console.log("Data submitted successfully:", data);
       reset();
     } catch (error) {
       console.error("Error submitting data:", error);
-      window.alert("Error submitting data! Please try again."); // Browser alert for error
     }
   };
 
@@ -36,22 +27,14 @@ const CasteEntryForm = () => {
             <label className="form-label">Caste Name:</label>
             <input
               type="text"
-              {...register("casteName", { required: "Caste Name is required" })}
+              {...register("casteName", { required: true })}
               className="form-control"
               style={{ width: "200px" }}
             />
           </div>
           <div className="d-flex gap-2">
             <Button type="submit" variant="contained" color="primary">Save</Button>
-            <Button 
-  variant="contained" 
-  color="error" 
-  onClick={() => reset()} 
-  sx={{ textTransform: "none", borderRadius: 2, fontWeight: "bold" }}
->
-  Clear
-</Button>
-
+            <Button type="button" variant="outlined" color="error" onClick={() => reset()}>Clear</Button>
           </div>
         </form>
       </motion.div>

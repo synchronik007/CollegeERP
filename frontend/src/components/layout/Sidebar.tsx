@@ -53,34 +53,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               path: "/dashboard/coursemaster",
               exact: true,
             },
-          ],
-        },
-      ],
-    },
-    {
-      icon: "bi-building-fill",
-      text: "Establishment",
-      children: [
-        {
-          icon: "bi-database-fill",
-          text: "Master",
-          children: [
             {
-              icon: "bi-table",
-              text: "Master Entry",
-              path: "/dashboard/establishment/master",
-              exact: true,
-            }
-          ],
-        },
-        {
-          icon: "bi-people-fill",
-          text: "Employee Master",
-          children: [
-            {
-              icon: "bi-person-vcard-fill",
-              text: "Employee Details",
-              path: "/dashboard/establishment/employeedetails",
+              icon: "bi-people-fill",
+              text: "Admission Master",
+              path: "/dashboard/admissionmaster",
               exact: true,
             },
           ],
@@ -134,6 +110,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       text: "System Settings",
       path: "/dashboard/settings",
     },
+    // {
+    //   icon: "bi-building",
+    //   text: "Master University",
+    //   path: "/dashboard/master/university",
+    // },
+    // {
+    //   icon: "bi-building",
+    //   text: "Master Institute",
+    //   path: "/dashboard/master/institute",
+    // },
     {
       icon: "bi-calendar",
       text: "Academic Year Master",
