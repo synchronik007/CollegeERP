@@ -3,7 +3,7 @@ services:
     name: collegeerp-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python manage.py runserver 0.0.0.0:8000
+    startCommand: gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DB_NAME
         value: postgres
