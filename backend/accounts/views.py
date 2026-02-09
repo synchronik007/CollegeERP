@@ -114,7 +114,7 @@ class LoginView(APIView):
             otp = user.generate_otp()
             
             try:
-                send_mail(
+                result = send_mail(
                     subject='Login Verification OTP - College ERP',
                     message=(
                         f'Dear {user.FIRST_NAME},\n\n'
@@ -128,7 +128,7 @@ class LoginView(APIView):
                     recipient_list=[user.EMAIL],
                     fail_silently=False,
                 )
-                
+                print(f"send_mail result: {result}")
                 return Response({
                     'status': 'success',
                     'message': 'Login successful. Please verify OTP sent to your email.',

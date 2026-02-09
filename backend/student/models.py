@@ -218,13 +218,11 @@ class STUDENT_ROLL_NUMBER_DETAILS(AuditModel):
     INSTITUTE = models.ForeignKey(INSTITUTE, on_delete=models.PROTECT, db_column='INSTITUTE_ID')
     BRANCH = models.ForeignKey(BRANCH, on_delete=models.PROTECT, db_column='BRANCH_ID')
     YEAR = models.ForeignKey(YEAR, on_delete=models.PROTECT, db_column='YEAR_ID')
-    STUDENT_ID = models.ForeignKey(
+    STUDENT = models.ForeignKey(
         'STUDENT_MASTER',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        to_field='STUDENT_ID',
-        db_column='STUDENT_ID',
         related_name='roll_number_details'
     )
     ACADEMIC_YEAR = models.CharField(ACADEMIC_YEAR, max_length=10, db_column='ACADEMIC_YEAR')
@@ -238,17 +236,17 @@ class STUDENT_ROLL_NUMBER_DETAILS(AuditModel):
         verbose_name = 'Student Roll Number Details'
         verbose_name_plural = 'Student Roll Number Details'
 
-    def _str_(self):
-        return f"{self.STUDENT_ID_id} - {self.ROLL_NO}"
+    def __str__(self):
+        return f"{self.STUDENT.RECORD_ID if self.STUDENT else None} - {self.ROLL_NO}"
 
 class STUDENT_DETAILS(AuditModel):
     RECORD_ID = models.AutoField(primary_key=True, db_column='RECORD_ID')
 
-    STUDENT_ID = models.ForeignKey(
+    STUDENT = models.ForeignKey(
         'STUDENT_MASTER',
-        to_field='STUDENT_ID', 
-        on_delete=models.CASCADE, 
-        db_column='STUDENT_ID'
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     PLACE_OF_BIRTH = models.CharField(max_length=100, db_column='PLACE_OF_BIRTH', null=True, blank=True, default='')
@@ -301,13 +299,12 @@ class STUDENT_DETAILS(AuditModel):
         verbose_name = 'Student Details'
         verbose_name_plural = 'Student Details'
         indexes = [
-            models.Index(fields=['STUDENT_ID']),
             models.Index(fields=['AADHAR_NO']),
             models.Index(fields=['PAN_NO']),
         ]
 
     def __str__(self):
-        return f"Details of {self.STUDENT_ID}"    
+        return f"Details of {self.STUDENT.RECORD_ID if self.STUDENT else None}"    
     
 class STUDENT_ACADEMIC_RECORD(AuditModel):
     RECORD_ID = models.AutoField(primary_key=True, db_column='RECORD_ID')
@@ -348,7 +345,7 @@ from django.db import models
 
 def student_document_upload_path(instance, filename):
         ext = filename.split('.')[-1]
-        student_id = instance.STUDENT_ID.STUDENT_ID if instance.STUDENT_ID else 'UNKNOWN'
+        student_id = instance.STUDENT.RECORD_ID if instance.STUDENT else 'UNKNOWN'
         doc_id = instance.DOCUMENT_ID.RECORD_ID if instance.DOCUMENT_ID else '0'
         new_filename = f"{student_id}_{doc_id}.{ext}"
         return os.path.join('student_documents', new_filename)
@@ -356,13 +353,12 @@ def student_document_upload_path(instance, filename):
 class STUDENT_DOCUMENTS(AuditModel):
     RECORDID = models.AutoField(primary_key=True)
 
-    STUDENT_ID = models.ForeignKey(
+    STUDENT = models.ForeignKey(
         'STUDENT_MASTER',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        to_field='STUDENT_ID',
-        db_column='STUDENT_ID',
+        db_column='RECORD_ID',
         related_name='DOCUMENTS_BY_STUDENT'
     )
 
@@ -409,7 +405,7 @@ class STUDENT_DOCUMENTS(AuditModel):
         db_table = '"STUDENT"."STUDENT_DOCUMENTS"'
         verbose_name = 'Student Documents'
         verbose_name_plural = 'Student Documents'
-        unique_together = ('STUDENT_ID', 'DOCUMENT_ID')
+        unique_together = ('STUDENT', 'DOCUMENT_ID')
 
     def __str__(self):
         return f"Student Document Record {self.RECORDID}"
