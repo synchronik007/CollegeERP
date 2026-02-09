@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: collegeerp-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py runserver 0.0.0.0:8000
+    envVars:
+      - key: DB_NAME
+        value: postgres
+      - key: DB_USER
+        value: postgres.dtfvgrscuvspmupyoero
+      - key: DB_PASSWORD
+        value: Tejas@#7889
+      - key: DB_HOST
+        value: aws-1-ap-southeast-2.pooler.supabase.com
+      - key: DB_PORT
+        value: 5432
