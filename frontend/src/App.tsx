@@ -11,7 +11,7 @@ import FacultyDashboard from "./components/dashboard/FacultyDashboard";
 import FinanceDashboard from "./components/dashboard/FinanceDashboard";
 import LibraryDashboard from "./components/dashboard/LibraryDashboard";
 import HostelDashboard from "./components/dashboard/HostelDashboard";
-import PlacementDashboard from "./components/dashboard/TeacherDashboard"; // Ensure this file exists
+import PlacementDashboard from "./components/dashboard/PlacementDashboard";
 import SuperAdminDashboard from "./components/dashboard/SuperAdminDashboard";
 import { SettingsProvider } from "./context/SettingsContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -121,6 +121,17 @@ const App = () => {
               }
             />
 
+            <Route
+              path="/superadmin-dashboard"
+              element={
+                user && (isAuthorized(ROLES.SUPERADMIN) || isAuthorized(ROLES.ADMIN)) ? (
+                  <SuperAdminDashboard user={user} />
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+
             {/* Academic Routes */}
             <Route
               path="/coe-dashboard"
@@ -167,6 +178,16 @@ const App = () => {
             <Route path="/student-roll-form" element={<StudentRollForm />} />
 
             {/* Teacher Route */}
+            <Route
+              path="/teacher-dashboard"
+              element={
+                isAuthorized(ROLES.TEACHER) ? (
+                  <TeacherDashboard user={user} />
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
 
 
 

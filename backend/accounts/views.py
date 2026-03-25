@@ -266,10 +266,10 @@ class VerifyOTPView(APIView):
                     'email': user.EMAIL,
                     'is_superuser': user.IS_SUPERUSER,
                     'designation': {
-                        'code': user.DESIGNATION.CODE,
-                        'name': user.DESIGNATION.NAME,
+                        'code': user.DESIGNATION.CODE if user.DESIGNATION else None,
+                        'name': user.DESIGNATION.NAME if user.DESIGNATION else None,
                     },
-                    'permissions': user.DESIGNATION.PERMISSIONS,
+                    'permissions': user.DESIGNATION.PERMISSIONS if user.DESIGNATION else {},
                     'last_activity': timezone.now().isoformat(),
                     'department_id': department_id,
                     'institute_id': institute_id,

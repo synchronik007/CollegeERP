@@ -24,6 +24,7 @@ export function isGuest(role: Roles): boolean {
 export const ROLES = {
   SUPERADMIN: "SUPERADMIN",
   ADMIN: "ADMIN",
+  TEACHER: "TEACHER",
   COE: "COE",
   HOD: "HOD",
   FACULTY: "FACULTY",
@@ -48,9 +49,12 @@ export const getDashboardRoute = (role: string | undefined) => {
 
   switch (upperRole) {
     case ROLES.SUPERADMIN:
-      return "/superadmin-dashboard";
+      // Route must exist in App.tsx. SuperAdmin is served under /dashboard/*.
+      return "/dashboard/home";
     case ROLES.ADMIN:
       return "/dashboard/home";
+    case ROLES.TEACHER:
+      return "/teacher-dashboard";
     case ROLES.COE:
       return "/coe-dashboard";
     case ROLES.HOD:
@@ -69,6 +73,7 @@ export const getDashboardRoute = (role: string | undefined) => {
       return "/placement-dashboard";
     default:
       console.warn(`Unknown role: ${upperRole}`);
-      return "/";
+      // Avoid redirect loops on "/" when user is already authenticated.
+      return "/dashboard/home";
   }
 };

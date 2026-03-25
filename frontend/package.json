@@ -40,12 +40,13 @@
   "devDependencies": {
     "@types/react-bootstrap": "^0.32.37",
     "autoprefixer": "^10.4.16",
+    "cross-env": "^7.0.3",
     "postcss": "^8.4.31",
     "sass": "^1.71.1",
     "tailwindcss": "^3.3.5"
   },
   "scripts": {
-    "start": "set \"HOST=localhost\" && react-scripts start",
+    "start": "cross-env DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

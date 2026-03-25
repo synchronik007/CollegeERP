@@ -27,6 +27,7 @@ import CommitteeMasterForm from "../Committee/CommitteeMasterForm";
 import EventType from "../Event/EventType";
 import EventMaster from "../Event/EventMaster";
 import PermissionManagement from "../adminfeatures/PermissionManagement";
+import AttendanceManagement from "../attendance/AttendanceManagement";
 
 const DashboardHome = ({ user }: any) => (
   <Box sx={{ p: 3 }}>
@@ -146,6 +147,7 @@ const SuperAdminDashboard = ({ user }: any) => {
               <Route path="/Event/Event Master" element={<EventMaster />} />
               <Route path="/Event/Event TYpe" element={<EventType />} />
               <Route path="/administration/permissions" element={<PermissionManagement />} />
+              <Route path="/attendance/management" element={<AttendanceManagement />} />
             </Routes>
           </Box>
           <Footer />

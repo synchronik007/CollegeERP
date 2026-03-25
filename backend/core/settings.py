@@ -34,13 +34,17 @@ sys.path.append(os.path.join(BASE_DIR))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c%4!kw7+q_z#-u(ocn-u8fol8&5gu2^*s!h$(bu(hecd57+2i-'
+# Ensure sensitive settings come from environment with sensible defaults for dev
+if not SECRET_KEY:
+    # Fallback for local development only
+    SECRET_KEY = 'django-insecure-fallback-change-me'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG already set above from env; ensure boolean
+DEBUG = bool(DEBUG)
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS comes from env earlier; if empty, default to localhost for dev
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -54,6 +58,7 @@ INSTALLED_APPS = [
     'establishments.apps.EstablishmentsConfig',  # Add this line
     'exam.apps.ExamConfig',  # Add this line
     'committee.apps.CommitteeConfig', 
+    'attendance.apps.AttendanceConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -165,7 +170,11 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Create specific path for employee profile photos
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+# Use console backend for emails in development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMPLOYEE_PROFILE_PATH = os.path.join(MEDIA_ROOT, 'employee_profiles', 'profile_photo')
 
 # Create directory for student document uploads
@@ -188,8 +197,8 @@ AUTHENTICATION_BACKENDS = [
 # Email Configuration
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'False').lower() in ('true', '1')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
@@ -214,19 +223,19 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
-# Add CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
+# CORS settings - prefer explicit origins from env; allow all only if requested
 CORS_ALLOW_CREDENTIALS = True
-
-# Debug URL routing
-DEBUG = True
 APPEND_SLASH = True
 
-# Update CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
-CORS_ALLOW_CREDENTIALS = True
+env_cors = os.environ.get('CORS_ALLOWED_ORIGINS')
+if env_cors:
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in env_cors.split(',') if o.strip()]
+else:
+    # Development default
+    CORS_ALLOWED_ORIGINS = [
+        'http://localhost:3000',
+    ]
+
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -238,16 +247,22 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
-    'x-username',  # Add this line for our custom header
+    'x-username',
 ]
+
+# CSRF trusted origins from env
+env_csrf = os.environ.get('CSRF_TRUSTED_ORIGINS')
+if env_csrf:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in env_csrf.split(',') if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 # CSRF Settings
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_COOKIE_SECURE = not DEBUG  # True in production
 
 # Add media URL patterns - add to urls.py
 FRONTEND_URL = 'http://localhost:3000'  # Add this if not already present
@@ -256,7 +271,7 @@ FRONTEND_URL = 'http://localhost:3000'  # Add this if not already present
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 1200  # 20 minutes in seconds (changed from 3600)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_NAME = 'collegeERP_sessionid'

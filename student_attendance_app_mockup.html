@@ -1,0 +1,721 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .stage { display: flex; justify-content: center; padding: 1.5rem 0; }
+  .phone {
+    width: 360px;
+    min-height: 720px;
+    background: #0d1b2e;
+    border-radius: 32px;
+    border: 2px solid #2a3a50;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* Status bar */
+  .statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 20px 4px;
+    font-size: 11px; color: #8fa3b8;
+  }
+
+  /* Typography */
+  .t-white { color: #e8f0f8; }
+  .t-muted { color: #7a93ab; }
+  .t-small { font-size: 12px; }
+  .t-med { font-size: 14px; }
+  .t-lg { font-size: 18px; font-weight: 500; }
+  .t-xl { font-size: 22px; font-weight: 500; }
+
+  /* Nav bar */
+  .navbar {
+    display: flex; border-top: 1px solid #1e2f42;
+    background: #0d1b2e;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 0 12px; cursor: pointer; gap: 4px;
+    font-size: 11px; color: #4a6278;
+    transition: color 0.15s;
+  }
+  .nav-item.active { color: #4fc3a1; }
+  .nav-icon { font-size: 18px; }
+
+  /* Cards */
+  .card {
+    background: #132236;
+    border-radius: 16px;
+    border: 1px solid #1e3248;
+    padding: 16px;
+  }
+  .card-sm { padding: 12px 14px; }
+
+  /* Subject cards */
+  .subj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .subj-card {
+    background: #132236;
+    border-radius: 16px;
+    border: 1px solid #1e3248;
+    padding: 14px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .subj-card:active { opacity: 0.8; }
+
+  /* Ring */
+  .ring-wrap { position: absolute; top: 12px; right: 12px; }
+  svg.ring { transform: rotate(-90deg); }
+
+  /* Chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; padding: 3px 8px; border-radius: 20px;
+    font-weight: 500;
+  }
+  .chip-green { background: #0e3a2a; color: #4fc3a1; }
+  .chip-red { background: #3a0e0e; color: #f07070; }
+  .chip-yellow { background: #3a2d0a; color: #e8b84b; }
+  .chip-blue { background: #0e2a3a; color: #60aaee; }
+  .chip-gray { background: #1e2f42; color: #7a93ab; }
+
+  /* Face banner */
+  .face-banner {
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+  }
+  .face-banner.enrolled { background: #0e2e1e; border: 1px solid #1a5e3a; }
+  .face-banner.not-enrolled { background: #2e1a0e; border: 1px solid #5e3a1a; }
+
+  /* Overall stats row */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .stat-box {
+    background: #132236; border-radius: 12px;
+    border: 1px solid #1e3248;
+    padding: 10px 8px; text-align: center;
+  }
+
+  /* Back button */
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    color: #4fc3a1; font-size: 14px; cursor: pointer;
+    padding: 0 20px 0 16px;
+  }
+
+  /* Profile avatar */
+  .avatar-lg {
+    width: 72px; height: 72px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 500;
+    background: #1e3a5a; color: #60aaee;
+    border: 2px solid #2a5080;
+    position: relative;
+  }
+  .avatar-edit {
+    position: absolute; bottom: 0; right: 0;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #4fc3a1; color: #0d1b2e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+
+  /* Info rows */
+  .info-block { border-radius: 14px; overflow: hidden; border: 1px solid #1e3248; }
+  .info-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; background: #132236;
+    border-bottom: 1px solid #1a2e42;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-icon { font-size: 16px; width: 20px; text-align: center; }
+  .info-label { font-size: 11px; color: #7a93ab; }
+  .info-val { font-size: 14px; color: #e8f0f8; font-weight: 500; margin-top: 1px; }
+
+  /* Attendance detail */
+  .calendar-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .cal-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; cursor: default;
+  }
+  .cal-p { background: #0e3a2a; color: #4fc3a1; }
+  .cal-a { background: #3a0e0e; color: #f07070; }
+  .cal-n { background: #1a2a3a; color: #4a6278; }
+
+  .att-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0; border-bottom: 1px solid #1a2e42;
+  }
+  .att-list-item:last-child { border-bottom: none; }
+
+  /* Face enrollment */
+  .photo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .photo-slot {
+    aspect-ratio: 1; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 10px; gap: 4px; cursor: pointer;
+  }
+  .photo-slot.empty { background: #1a2a3a; border: 1.5px dashed #2a4a60; color: #4a6278; }
+  .photo-slot.filled { background: #0e2e1e; border: 1.5px solid #2a5e3a; color: #4fc3a1; }
+  .photo-slot.filled .slot-icon { font-size: 20px; }
+
+  /* Camera screen */
+  .camera-view {
+    flex: 1; background: #060e18;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .face-guide {
+    width: 180px; height: 220px; border-radius: 50%;
+    border: 2px solid #4fc3a1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; color: #1a3a28;
+    position: relative;
+  }
+  .corner { position: absolute; width: 20px; height: 20px; border-color: #4fc3a1; border-style: solid; }
+  .corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+  .corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+  .corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+  .corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+  .angle-dots { display: flex; gap: 8px; margin-top: 20px; }
+  .angle-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #1e3248; border: 1.5px solid #2a4a60;
+    transition: background 0.2s;
+  }
+  .angle-dot.done { background: #4fc3a1; border-color: #4fc3a1; }
+  .angle-dot.active { background: #e8b84b; border-color: #e8b84b; }
+
+  .capture-btn {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #4fc3a1; border: 3px solid #0d1b2e;
+    outline: 3px solid #4fc3a1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .capture-btn:active { transform: scale(0.95); }
+
+  /* Buttons */
+  .btn-primary {
+    background: #4fc3a1; color: #0a1f14;
+    border: none; border-radius: 14px;
+    padding: 14px; font-size: 15px; font-weight: 500;
+    cursor: pointer; width: 100%;
+  }
+  .btn-primary:active { opacity: 0.85; }
+  .btn-outline {
+    background: transparent; color: #4fc3a1;
+    border: 1.5px solid #2a5e3a; border-radius: 14px;
+    padding: 13px; font-size: 15px; font-weight: 500;
+    cursor: pointer; width: 100%;
+  }
+  .btn-danger {
+    background: #3a1515; color: #f07070;
+    border: 1.5px solid #5e2a2a; border-radius: 14px;
+    padding: 13px; font-size: 15px; font-weight: 500;
+    cursor: pointer; width: 100%;
+  }
+
+  .scroll-area { overflow-y: auto; flex: 1; }
+  .scroll-area::-webkit-scrollbar { width: 3px; }
+  .scroll-area::-webkit-scrollbar-track { background: transparent; }
+  .scroll-area::-webkit-scrollbar-thumb { background: #2a4a60; border-radius: 2px; }
+
+  .section-label {
+    font-size: 11px; color: #7a93ab; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+
+  /* Success screen */
+  .success-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: #0e2e1e; border: 2px solid #4fc3a1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+</style>
+
+<div class="stage">
+<div class="phone">
+
+<!-- ======= DASHBOARD ======= -->
+<div class="screen active" id="screen-dashboard">
+  <div class="statusbar"><span>9:41</span><span>AI&ML • 3rd Year</span></div>
+  <div class="scroll-area" style="padding: 0 16px 8px;">
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0 16px;">
+      <div>
+        <div class="t-xl t-white">Dashboard</div>
+        <div class="t-small t-muted">Wednesday, 25 March</div>
+      </div>
+      <div style="width:40px;height:40px;border-radius:50%;background:#1e3a5a;display:flex;align-items:center;justify-content:center;color:#60aaee;font-size:15px;font-weight:500;border:1.5px solid #2a5080;cursor:pointer;" onclick="go('profile')">DM</div>
+    </div>
+
+    <!-- Overall stats -->
+    <div class="stats-row" style="margin-bottom:16px;">
+      <div class="stat-box">
+        <div style="font-size:18px;font-weight:500;color:#e8f0f8;">74%</div>
+        <div style="font-size:10px;color:#7a93ab;margin-top:2px;">Overall</div>
+      </div>
+      <div class="stat-box">
+        <div style="font-size:18px;font-weight:500;color:#e8f0f8;">18</div>
+        <div style="font-size:10px;color:#7a93ab;margin-top:2px;">Present</div>
+      </div>
+      <div class="stat-box">
+        <div style="font-size:18px;font-weight:500;color:#f07070;">6</div>
+        <div style="font-size:10px;color:#7a93ab;margin-top:2px;">Absent</div>
+      </div>
+    </div>
+
+    <!-- Face banner -->
+    <div class="face-banner enrolled" style="margin-bottom:16px;" onclick="go('face-enrollment')">
+      <div style="font-size:24px;">&#x1F9D1;&#x200D;&#x1F4BB;</div>
+      <div style="flex:1;">
+        <div style="font-size:12px;color:#7a93ab;">Face ID</div>
+        <div style="font-size:14px;font-weight:500;color:#4fc3a1;">Enrolled — 3 photos</div>
+      </div>
+      <div style="color:#4fc3a1;font-size:16px;">&#8250;</div>
+    </div>
+
+    <!-- Subjects -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div class="t-lg t-white">My Subjects</div>
+      <div style="font-size:12px;color:#4fc3a1;">6 subjects</div>
+    </div>
+
+    <div class="subj-grid">
+      <!-- Card 1 -->
+      <div class="subj-card" onclick="go('subject-detail')">
+        <div class="ring-wrap">
+          <svg class="ring" width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#1e3248" stroke-width="4"/>
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#f07070" stroke-width="4"
+              stroke-dasharray="119.4" stroke-dashoffset="80" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:500;color:#f07070;">33%</div>
+        </div>
+        <div style="font-size:13px;font-weight:500;color:#e8f0f8;margin-bottom:4px;padding-right:52px;">Discrete Maths</div>
+        <div style="font-size:11px;color:#7a93ab;">M-1 • Rakesh Sir</div>
+        <div style="margin-top:24px;font-size:11px;color:#4a6278;display:flex;align-items:center;gap:4px;">
+          <span>&#128197;</span> 1 / 3 classes
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="subj-card" onclick="go('subject-detail')">
+        <div class="ring-wrap">
+          <svg class="ring" width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#1e3248" stroke-width="4"/>
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#4fc3a1" stroke-width="4"
+              stroke-dasharray="119.4" stroke-dashoffset="0" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:500;color:#4fc3a1;">100%</div>
+        </div>
+        <div style="font-size:13px;font-weight:500;color:#e8f0f8;margin-bottom:4px;padding-right:52px;">Data Structures</div>
+        <div style="font-size:11px;color:#7a93ab;">DS • Priya Ma'am</div>
+        <div style="margin-top:24px;font-size:11px;color:#4a6278;display:flex;align-items:center;gap:4px;">
+          <span>&#128197;</span> 2 / 2 classes
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="subj-card" onclick="go('subject-detail')">
+        <div class="ring-wrap">
+          <svg class="ring" width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#1e3248" stroke-width="4"/>
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#e8b84b" stroke-width="4"
+              stroke-dasharray="119.4" stroke-dashoffset="30" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:500;color:#e8b84b;">75%</div>
+        </div>
+        <div style="font-size:13px;font-weight:500;color:#e8f0f8;margin-bottom:4px;padding-right:52px;">Machine Learning</div>
+        <div style="font-size:11px;color:#7a93ab;">ML • Arun Sir</div>
+        <div style="margin-top:24px;font-size:11px;color:#4a6278;display:flex;align-items:center;gap:4px;">
+          <span>&#128197;</span> 6 / 8 classes
+        </div>
+      </div>
+      <!-- Card 4 -->
+      <div class="subj-card" onclick="go('subject-detail')">
+        <div class="ring-wrap">
+          <svg class="ring" width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#1e3248" stroke-width="4"/>
+            <circle cx="24" cy="24" r="19" fill="none" stroke="#4fc3a1" stroke-width="4"
+              stroke-dasharray="119.4" stroke-dashoffset="14" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:500;color:#4fc3a1;">88%</div>
+        </div>
+        <div style="font-size:13px;font-weight:500;color:#e8f0f8;margin-bottom:4px;padding-right:52px;">Python Prog.</div>
+        <div style="font-size:11px;color:#7a93ab;">PY • Neha Ma'am</div>
+        <div style="margin-top:24px;font-size:11px;color:#4a6278;display:flex;align-items:center;gap:4px;">
+          <span>&#128197;</span> 7 / 8 classes
+        </div>
+      </div>
+    </div>
+    <div style="height:16px;"></div>
+  </div>
+  <div class="navbar">
+    <div class="nav-item active"><div class="nav-icon">&#8962;</div><span>Home</span></div>
+    <div class="nav-item" onclick="go('profile')"><div class="nav-icon">&#128100;</div><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- ======= SUBJECT DETAIL ======= -->
+<div class="screen" id="screen-subject-detail">
+  <div class="statusbar"><span>9:41</span><span>AI&ML • 3rd Year</span></div>
+  <div style="padding: 8px 16px 0; display:flex; align-items:center; gap:8px;">
+    <div class="back-btn" onclick="go('dashboard')">&#8592; Back</div>
+  </div>
+
+  <div class="scroll-area" style="padding: 12px 16px 8px;">
+    <div style="margin-bottom:16px;">
+      <div class="t-xl t-white" style="margin-bottom:2px;">Discrete Maths</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="chip chip-red">33% — At Risk</span>
+        <span class="t-small t-muted">M-1 • Rakesh Sir</span>
+      </div>
+    </div>
+
+    <!-- Big stat -->
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="text-align:center;flex:1;">
+        <div style="font-size:36px;font-weight:500;color:#f07070;">33%</div>
+        <div class="t-small t-muted">Attendance</div>
+      </div>
+      <div style="width:1px;height:48px;background:#1e3248;"></div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-size:24px;font-weight:500;color:#e8f0f8;">1/3</div>
+        <div class="t-small t-muted">Classes</div>
+      </div>
+      <div style="width:1px;height:48px;background:#1e3248;"></div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-size:24px;font-weight:500;color:#e8b84b;">+5</div>
+        <div class="t-small t-muted">Need to reach 75%</div>
+      </div>
+    </div>
+
+    <!-- Warning card -->
+    <div style="background:#2e1a0e;border:1px solid #5e3a1a;border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;">
+      <div style="font-size:18px;">&#9888;</div>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:#e8b84b;margin-bottom:2px;">Below 75% threshold</div>
+        <div style="font-size:12px;color:#a07040;">You need to attend 5 more consecutive classes to reach the minimum requirement.</div>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="section-label" style="margin-bottom:10px;">March 2026</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-around;margin-bottom:10px;">
+        <span style="font-size:10px;color:#4a6278;">M</span><span style="font-size:10px;color:#4a6278;">T</span><span style="font-size:10px;color:#4a6278;">W</span><span style="font-size:10px;color:#4a6278;">T</span><span style="font-size:10px;color:#4a6278;">F</span>
+      </div>
+      <div style="display:flex;justify-content:space-around;margin-bottom:6px;">
+        <div class="cal-dot cal-n">2</div>
+        <div class="cal-dot cal-n">3</div>
+        <div class="cal-dot cal-p">4</div>
+        <div class="cal-dot cal-n">5</div>
+        <div class="cal-dot cal-n">6</div>
+      </div>
+      <div style="display:flex;justify-content:space-around;margin-bottom:6px;">
+        <div class="cal-dot cal-n">9</div>
+        <div class="cal-dot cal-a">10</div>
+        <div class="cal-dot cal-n">11</div>
+        <div class="cal-dot cal-a">12</div>
+        <div class="cal-dot cal-n">13</div>
+      </div>
+      <div style="display:flex;justify-content:space-around;">
+        <div class="cal-dot cal-n">16</div>
+        <div class="cal-dot cal-n">17</div>
+        <div class="cal-dot cal-n">18</div>
+        <div class="cal-dot cal-n">19</div>
+        <div class="cal-dot cal-n">20</div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:12px;justify-content:center;">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#4fc3a1;"><span style="width:8px;height:8px;border-radius:50%;background:#4fc3a1;display:inline-block;"></span>Present</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#f07070;"><span style="width:8px;height:8px;border-radius:50%;background:#f07070;display:inline-block;"></span>Absent</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#4a6278;"><span style="width:8px;height:8px;border-radius:50%;background:#1a2a3a;display:inline-block;"></span>No class</span>
+      </div>
+    </div>
+
+    <!-- Date-wise list -->
+    <div class="section-label" style="margin-bottom:8px;">Datewise Record</div>
+    <div class="card">
+      <div class="att-list-item">
+        <div><div style="font-size:13px;color:#e8f0f8;">4 Mar, Wed</div><div style="font-size:11px;color:#4a6278;">9:00 AM</div></div>
+        <span class="chip chip-green">Present</span>
+      </div>
+      <div class="att-list-item">
+        <div><div style="font-size:13px;color:#e8f0f8;">10 Mar, Tue</div><div style="font-size:11px;color:#4a6278;">9:00 AM</div></div>
+        <span class="chip chip-red">Absent</span>
+      </div>
+      <div class="att-list-item">
+        <div><div style="font-size:13px;color:#e8f0f8;">12 Mar, Thu</div><div style="font-size:11px;color:#4a6278;">9:00 AM</div></div>
+        <span class="chip chip-red">Absent</span>
+      </div>
+    </div>
+    <div style="height:16px;"></div>
+  </div>
+  <div class="navbar">
+    <div class="nav-item" onclick="go('dashboard')"><div class="nav-icon">&#8962;</div><span>Home</span></div>
+    <div class="nav-item" onclick="go('profile')"><div class="nav-icon">&#128100;</div><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- ======= PROFILE ======= -->
+<div class="screen" id="screen-profile">
+  <div class="statusbar"><span>9:41</span><span>AI&ML • 3rd Year</span></div>
+  <div class="scroll-area" style="padding: 12px 16px 8px;">
+    <div class="t-xl t-white" style="margin-bottom:20px;">My Profile</div>
+
+    <!-- Avatar header -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px;">
+      <div class="avatar-lg">
+        DM
+        <div class="avatar-edit">&#9998;</div>
+      </div>
+      <div style="font-size:18px;font-weight:500;color:#e8f0f8;margin-top:12px;">Dipanshu Mude</div>
+      <div style="font-size:13px;color:#7a93ab;margin-top:2px;">Student • AI & ML</div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <span class="chip chip-blue">3rd Year</span>
+        <span class="chip chip-gray">Sem 5</span>
+        <span class="chip chip-green">Enrolled ✓</span>
+      </div>
+    </div>
+
+    <!-- Info block -->
+    <div class="section-label" style="margin-bottom:8px;">Student Details</div>
+    <div class="info-block" style="margin-bottom:16px;">
+      <div class="info-row">
+        <span class="info-icon">&#128196;</span>
+        <div><div class="info-label">Student ID</div><div class="info-val">AI&ML25001</div></div>
+      </div>
+      <div class="info-row">
+        <span class="info-icon">&#127979;</span>
+        <div><div class="info-label">Branch</div><div class="info-val">Artificial Intelligence & ML</div></div>
+      </div>
+      <div class="info-row">
+        <span class="info-icon">&#128197;</span>
+        <div><div class="info-label">Year & Semester</div><div class="info-val">3rd Year • Semester 5</div></div>
+      </div>
+      <div class="info-row">
+        <span class="info-icon">&#127979;</span>
+        <div><div class="info-label">Institute Code</div><div class="info-val">YCCE-NGP-001</div></div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:8px;">Contact</div>
+    <div class="info-block" style="margin-bottom:16px;">
+      <div class="info-row">
+        <span class="info-icon">&#9993;</span>
+        <div><div class="info-label">Email</div><div class="info-val" style="font-size:13px;">jyotibhurbhure06@gmail.com</div></div>
+      </div>
+      <div class="info-row">
+        <span class="info-icon">&#128222;</span>
+        <div><div class="info-label">Phone</div><div class="info-val">+91 98765 43210</div></div>
+      </div>
+    </div>
+
+    <!-- Face ID section -->
+    <div class="section-label" style="margin-bottom:8px;">Face ID</div>
+    <div class="face-banner enrolled" style="margin-bottom:16px;" onclick="go('face-enrollment')">
+      <div style="font-size:28px;">&#128248;</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:500;color:#4fc3a1;">3 photos enrolled</div>
+        <div style="font-size:11px;color:#7a93ab;margin-top:2px;">Tap to add more angles for better accuracy</div>
+      </div>
+      <div style="color:#4fc3a1;font-size:18px;">&#8250;</div>
+    </div>
+
+    <button class="btn-danger" style="margin-bottom:16px;">&#x2192; Logout</button>
+    <div style="height:8px;"></div>
+  </div>
+  <div class="navbar">
+    <div class="nav-item" onclick="go('dashboard')"><div class="nav-icon">&#8962;</div><span>Home</span></div>
+    <div class="nav-item active"><div class="nav-icon">&#128100;</div><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- ======= FACE ENROLLMENT ======= -->
+<div class="screen" id="screen-face-enrollment">
+  <div class="statusbar"><span>9:41</span><span>AI&ML • 3rd Year</span></div>
+  <div style="padding: 8px 16px 0; display:flex; align-items:center;">
+    <div class="back-btn" onclick="go('profile')">&#8592; Face ID</div>
+  </div>
+
+  <div class="scroll-area" style="padding: 12px 16px 8px;">
+    <div class="t-xl t-white" style="margin-bottom:4px;">Manage Face ID</div>
+    <div class="t-small t-muted" style="margin-bottom:20px;">More angles = better recognition accuracy</div>
+
+    <!-- Status card -->
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="font-size:28px;">&#128248;</div>
+        <div>
+          <div style="font-size:15px;font-weight:500;color:#e8f0f8;">3 of 5 slots used</div>
+          <div style="font-size:12px;color:#7a93ab;">Add 2 more photos for best results</div>
+        </div>
+      </div>
+      <div style="background:#1a2a3a;border-radius:8px;height:6px;overflow:hidden;">
+        <div style="width:60%;height:100%;background:#4fc3a1;border-radius:8px;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;">
+        <span style="font-size:11px;color:#4a6278;">0</span>
+        <span style="font-size:11px;color:#4fc3a1;">Recommended: 5 photos</span>
+      </div>
+    </div>
+
+    <!-- Photo slots -->
+    <div class="section-label" style="margin-bottom:10px;">Your photos</div>
+    <div class="photo-grid" style="margin-bottom:20px;">
+      <div class="photo-slot filled" onclick="go('camera')">
+        <div class="slot-icon">&#128100;</div>
+        <span>Front</span>
+      </div>
+      <div class="photo-slot filled" onclick="go('camera')">
+        <div class="slot-icon">&#128100;</div>
+        <span>Left</span>
+      </div>
+      <div class="photo-slot filled" onclick="go('camera')">
+        <div class="slot-icon">&#128100;</div>
+        <span>Right</span>
+      </div>
+      <div class="photo-slot empty" onclick="go('camera')">
+        <div style="font-size:20px;">&#43;</div>
+        <span>Up</span>
+      </div>
+      <div class="photo-slot empty" onclick="go('camera')">
+        <div style="font-size:20px;">&#43;</div>
+        <span>Down</span>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="section-label" style="margin-bottom:8px;">Tips for better accuracy</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <span style="color:#4fc3a1;">&#10003;</span>
+        <span style="font-size:13px;color:#c0d0e0;">Good lighting — face the light source</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <span style="color:#4fc3a1;">&#10003;</span>
+        <span style="font-size:13px;color:#c0d0e0;">Remove glasses if possible</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <span style="color:#4fc3a1;">&#10003;</span>
+        <span style="font-size:13px;color:#c0d0e0;">Neutral expression, eyes open</span>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <span style="color:#f07070;">&#10007;</span>
+        <span style="font-size:13px;color:#c0d0e0;">Avoid dark backgrounds or masks</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="margin-bottom:10px;" onclick="go('camera')">+ Add More Photos</button>
+    <button class="btn-outline" style="margin-bottom:16px;">Remove All & Restart</button>
+    <div style="height:8px;"></div>
+  </div>
+</div>
+
+<!-- ======= CAMERA ======= -->
+<div class="screen" id="screen-camera">
+  <div class="statusbar" style="background:#060e18;"><span style="color:#8fa3b8;">9:41</span><span style="color:#8fa3b8;">AI&ML</span></div>
+  <div style="padding: 8px 16px 0; background:#060e18; display:flex; align-items:center;">
+    <div class="back-btn" onclick="go('face-enrollment')">&#8592; Cancel</div>
+  </div>
+
+  <div class="camera-view" style="flex:1;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:14px;font-weight:500;color:#e8f0f8;" id="angle-label">Look straight at camera</div>
+      <div style="font-size:12px;color:#7a93ab;margin-top:4px;">Photo 1 of 5</div>
+    </div>
+
+    <div class="face-guide">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <span style="font-size:60px;opacity:0.3;">&#128100;</span>
+    </div>
+
+    <div class="angle-dots" style="margin-top:20px;">
+      <div class="angle-dot active" id="d0"></div>
+      <div class="angle-dot" id="d1"></div>
+      <div class="angle-dot" id="d2"></div>
+      <div class="angle-dot" id="d3"></div>
+      <div class="angle-dot" id="d4"></div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:20px;justify-content:center;">
+      <span style="font-size:10px;color:#4a6278;">Front</span>
+      <span style="font-size:10px;color:#4a6278;">Left</span>
+      <span style="font-size:10px;color:#4a6278;">Right</span>
+      <span style="font-size:10px;color:#4a6278;">Up</span>
+      <span style="font-size:10px;color:#4a6278;">Down</span>
+    </div>
+  </div>
+
+  <div style="background:#060e18;padding:20px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <div class="capture-btn" id="capture-btn" onclick="capturePhoto()">&#9679;</div>
+    <div style="font-size:12px;color:#4a6278;">Tap to capture • Auto-detects face</div>
+  </div>
+</div>
+
+<!-- ======= SUCCESS ======= -->
+<div class="screen" id="screen-success">
+  <div class="statusbar"><span>9:41</span><span>AI&ML</span></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;">
+    <div class="success-icon" style="margin-bottom:20px;">&#10003;</div>
+    <div style="font-size:20px;font-weight:500;color:#e8f0f8;text-align:center;margin-bottom:10px;">Face ID Updated!</div>
+    <div style="font-size:14px;color:#7a93ab;text-align:center;line-height:1.6;margin-bottom:32px;">Your 5 photos have been enrolled. Attendance recognition will now be more accurate.</div>
+    <div style="background:#0e2e1e;border:1px solid #2a5e3a;border-radius:14px;padding:14px 20px;display:flex;gap:12px;align-items:center;width:100%;margin-bottom:32px;">
+      <span style="font-size:20px;">&#9889;</span>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:#4fc3a1;">Embeddings processed</div>
+        <div style="font-size:12px;color:#7a93ab;margin-top:2px;">5 face vectors averaged and stored</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="go('profile')">Back to Profile</button>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+let captureStep = 0;
+const angles = ['Look straight at camera','Turn slightly left','Turn slightly right','Tilt head slightly up','Tilt head slightly down'];
+
+function go(s) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen-' + s).classList.add('active');
+  captureStep = 0;
+  resetDots();
+}
+
+function resetDots() {
+  for (let i = 0; i < 5; i++) {
+    const d = document.getElementById('d' + i);
+    if (d) { d.className = 'angle-dot' + (i === 0 ? ' active' : ''); }
+  }
+  const lbl = document.getElementById('angle-label');
+  if (lbl) lbl.textContent = angles[0];
+}
+
+function capturePhoto() {
+  const d = document.getElementById('d' + captureStep);
+  if (d) { d.className = 'angle-dot done'; }
+  captureStep++;
+  if (captureStep >= 5) { go('success'); return; }
+  const next = document.getElementById('d' + captureStep);
+  if (next) next.className = 'angle-dot active';
+  const lbl = document.getElementById('angle-label');
+  if (lbl) lbl.textContent = angles[captureStep];
+  const btn = document.getElementById('capture-btn');
+  if (btn) { btn.style.background = '#e8b84b'; setTimeout(() => { if(btn) btn.style.background = '#4fc3a1'; }, 150); }
+}
+</script>

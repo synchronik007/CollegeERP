@@ -1,14 +1,13 @@
 import axios from "./axios";
 
-const API_URL = "http://localhost:8000/api";
-
 export const employeeService = {
   createEmployee: async (formData: FormData) => {
     try {
       // Log form data for debugging (excluding file content)
       for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}: File - ${value.name} (${value.type})`);
+        if (typeof value !== "string") {
+          const fileValue = value as File;
+          console.log(`${key}: File - ${fileValue.name} (${fileValue.type})`);
         } else {
           console.log(`${key}:`, value);
         }
@@ -47,8 +46,9 @@ export const employeeService = {
       // Log the form data being sent for debugging
       console.log("Update FormData contents:");
       for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}: File - ${value.name}`);
+        if (typeof value !== "string") {
+          const fileValue = value as File;
+          console.log(`${key}: File - ${fileValue.name}`);
         } else {
           console.log(`${key}:`, value);
         }

@@ -34,6 +34,7 @@ import {
   AdminPanelSettings as AdminPanelSettingsIcon,
   CalendarMonth as CalendarMonthIcon,
   Security as SecurityIcon,
+  FactCheck as FactCheckIcon,
 } from "@mui/icons-material";
 import axiosInstance from "../../api/axios";
 
@@ -162,6 +163,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, menuItems: customM
             { icon: <PersonIcon />, text: "Basic Student Info", path: "/dashboard/student-master/student", exact: true },
             { icon: <AssignmentIcon />, text: "Student Roll No", path: "/dashboard/student-master/studentrollno", exact: true },
           ],
+        },
+      ],
+    },
+    {
+      icon: <FactCheckIcon />,
+      text: "Attendance",
+      children: [
+        {
+          icon: <TableChartIcon />,
+          text: "Attendance Management",
+          path: "/dashboard/attendance/management",
+          exact: true,
         },
       ],
     },

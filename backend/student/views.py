@@ -42,6 +42,49 @@ class StudentMasterViewSet(viewsets.ModelViewSet):
         except (ValueError, TypeError):
             return default
 
+    @action(detail=True, methods=['post'])
+    def generate_embedding(self, request, STUDENT_ID=None):
+        """
+        Endpoint to receive a cropped face image from Flutter, generate the 128-d
+        face embedding using the python face_recognition library, and save it.
+        """
+        import face_recognition
+        import json
+        
+        student = self.get_object()
+        
+        if 'image' not in request.FILES:
+            return Response({'status': 'error', 'message': 'No face image uploaded. Expected key: "image".'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        image_file = request.FILES['image']
+        
+        try:
+            # Load the image file for face_recognition
+            img_array = face_recognition.load_image_file(image_file)
+            
+            # Since the image should already be cropped to the face by ML Kit,
+            # face_recognition should easily find it (or we can fallback to the whole image)
+            encodings = face_recognition.face_encodings(img_array)
+            
+            if not encodings:
+                return Response({'status': 'error', 'message': 'No face could be extracted from the uploaded image.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Convert numpy array to list, then serialize to JSON
+            embedding_list = encodings[0].tolist()
+            student.FACE_EMBEDDING = json.dumps(embedding_list)
+            student.save(update_fields=['FACE_EMBEDDING'])
+            
+            return Response({
+                'status': 'success',
+                'message': 'Face embedding generated and saved successfully'
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': f'Failed to generate embedding: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def get_queryset(self):
      queryset = STUDENT_MASTER.objects.filter(IS_DELETED=False)
 
